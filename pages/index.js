@@ -35,7 +35,7 @@ export default function Home() {
     };
 
     checkWebsite();
-    const interval = setInterval(checkWebsite, 6000); // Check every minute
+    const interval = setInterval(checkWebsite, 60000); // Check every minute
 
     return () => clearInterval(interval);
   }, []);
