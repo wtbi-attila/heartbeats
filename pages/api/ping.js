@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { supabase } from '../../lib/supabaseClient';
 
-const WEBSITE_TO_PING = 'https://wtbi.agency'; // Replace with the website you want to ping
+const WEBSITE_TO_PING = 'https://example.com'; // Replace with the website you want to ping
 
 export default async function handler(req, res) {
   try {
@@ -32,19 +32,6 @@ export default async function handler(req, res) {
     res.status(200).json({ status: statusMessage });
   } catch (error) {
     console.error('Error pinging website:', error);
-
-    console.log(error.status);
-
-    // Store ping result in Supabase
-    await supabase
-      .from('ping_results')
-      .insert({
-          website: WEBSITE_TO_PING,
-          status: 'down',
-          response_time: 0,
-          status_code: 0,
-        });
-
     res.status(200).json({ status: 'Error: Unable to reach the website' });
   }
 }

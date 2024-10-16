@@ -1,101 +1,69 @@
-import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { supabase } from '../lib/supabaseClient';
+import Link from 'next/link';
 
-export default function Home() {
-  const [status, setStatus] = useState('Loading...');
-  const [lastChecked, setLastChecked] = useState(null);
-  const [pingHistory, setPingHistory] = useState([]);
-
-  useEffect(() => {
-    const checkWebsite = async () => {
-      try {
-        const response = await fetch('/api/ping');
-        const data = await response.json();
-        setStatus(data.status);
-        setLastChecked(new Date().toLocaleString());
-        fetchPingHistory();
-      } catch (error) {
-        setStatus('Error checking website');
-      }
-    };
-
-    const fetchPingHistory = async () => {
-      const { data, error } = await supabase
-        .from('ping_results')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .range(1, 10);
-
-      if (error) {
-        console.error('Error fetching ping history:', error);
-      } else {
-        setPingHistory(data);
-      }
-    };
-
-    checkWebsite();
-    const interval = setInterval(checkWebsite, 60000); // Check every minute
-
-    return () => clearInterval(interval);
-  }, []);
-
+export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <>
       <Head>
-        <title>Website Status</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>Dashboard</title>
       </Head>
-
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-center mb-8">Website Status</h1>
-        <h2 className="text-2xl font-semibold text-center text-gray-500 mb-8">https://wtbi.agency</h2>
+      <div className="py-6">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Dashboard</h1>
         
-        <div className="bg-white shadow-md rounded-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Current Status</h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-lg font-medium">{status}</p>
-              {lastChecked && (
-                <p className="text-sm text-gray-500">Last checked: {lastChecked}</p>
-              )}
-            </div>
-            <div className={`w-4 h-4 rounded-full ${status.includes('up') ? 'bg-green-500' : 'bg-red-500'}`}></div>
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-2 dark:text-white">Total Projects</h2>
+            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">24</p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-2 dark:text-white">Active Documents</h2>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400">137</p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-2 dark:text-white">Pending Reports</h2>
+            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">9</p>
           </div>
         </div>
 
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4">Ping History</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto">
-              <thead>
-                <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                  <th className="py-3 px-6 text-left">Timestamp</th>
-                  <th className="py-3 px-6 text-left">Status</th>
-                  <th className="py-3 px-6 text-left">Response Time</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-600 text-sm font-light">
-                {pingHistory.map((ping) => (
-                  <tr key={ping.id} className="border-b border-gray-200 hover:bg-gray-100">
-                    <td className="py-3 px-6 text-left whitespace-nowrap">
-                      {new Date(ping.created_at).toLocaleString()}
-                    </td>
-                    <td className="py-3 px-6 text-left">
-                      <span className={`${ping.status === 'up' ? 'bg-green-200 text-green-600' : 'bg-red-200 text-red-600'} py-1 px-3 rounded-full text-xs`}>
-                        {ping.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-6 text-left">
-                      {ping.response_time}ms
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Recent Activity */}
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4 dark:text-white">Recent Activity</h2>
+          <ul className="space-y-4">
+            <li className="flex items-center">
+              <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">Project</span>
+              <p className="dark:text-gray-300">New project "Website Redesign" created</p>
+            </li>
+            <li className="flex items-center">
+              <span className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">Document</span>
+              <p className="dark:text-gray-300">Contract for "Client XYZ" uploaded</p>
+            </li>
+            <li className="flex items-center">
+              <span className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">Report</span>
+              <p className="dark:text-gray-300">Monthly analytics report generated</p>
+            </li>
+          </ul>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+          <h2 className="text-xl font-semibold mb-4 dark:text-white">Quick Actions</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Link href="/projects/new" className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded text-center">
+              New Project
+            </Link>
+            <Link href="/documents/upload" className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white font-bold py-2 px-4 rounded text-center">
+              Upload Document
+            </Link>
+            <Link href="/reports/generate" className="bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-500 dark:hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded text-center">
+              Generate Report
+            </Link>
+            <Link href="/settings" className="bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white font-bold py-2 px-4 rounded text-center">
+              Settings
+            </Link>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </>
   );
 }
