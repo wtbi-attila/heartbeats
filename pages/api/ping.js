@@ -1,12 +1,20 @@
 import fetch from 'node-fetch';
 import { supabase } from '../../lib/supabaseClient';
 
-const WEBSITE_TO_PING = 'https://example.com'; // Replace with the website you want to ping
-
 export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { websiteUrl } = req.body;
+
+  if (!websiteUrl) {
+    return res.status(400).json({ error: 'No website URL provided' });
+  }
+
   try {
     const start = Date.now();
-    const response = await fetch(WEBSITE_TO_PING);
+    const response = await fetch(websiteUrl);
     const end = Date.now();
     const responseTime = end - start;
 
@@ -19,7 +27,7 @@ export default async function handler(req, res) {
     const { data, error } = await supabase
       .from('ping_results')
       .insert({
-        website: WEBSITE_TO_PING,
+        website: websiteUrl,
         status,
         response_time: responseTime,
         status_code: response.status,
@@ -29,9 +37,9 @@ export default async function handler(req, res) {
       console.error('Error storing ping result:', error);
     }
 
-    res.status(200).json({ status: statusMessage });
+    res.status(200).json({ status: statusMessage, websiteUrl });
   } catch (error) {
     console.error('Error pinging website:', error);
-    res.status(200).json({ status: 'Error: Unable to reach the website' });
+    res.status(200).json({ status: 'Error: Unable to reach the website', websiteUrl });
   }
 }

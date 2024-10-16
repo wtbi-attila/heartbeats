@@ -1,20 +1,16 @@
-import { supabase } from '../../lib/supabaseClient';
+import { supabase, signUp as supabaseSignUp } from '../../lib/supabaseClient';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { email, password, role } = req.body;
+    const { email, password, role, websiteUrl } = req.body;
 
     try {
-      const { user, error } = await supabase.auth.signUp({ email, password });
-
-      if (error) throw error;
-
-      // Insert additional user data into the users table
-      const { data, error: insertError } = await supabase
-        .from('users')
-        .insert({ id: user.id, email, role });
-
-      if (insertError) throw insertError;
+      await supabaseSignUp( email, password, { 
+        data: {
+          role,
+          ...(role === 'client' && websiteUrl ? { websiteUrl } : {}),
+        },
+      } );
 
       res.status(200).json({ message: 'User registered successfully' });
     } catch (error) {
